@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colheita Café — Controle de Sacas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B1F0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Colheita">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -814,6 +819,13 @@
       return buildComprovante(f, regs, total, true);
     }).join('');
     setTimeout(() => window.print(), 300);
+  }
+
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/colheita-cafe/service-worker.js');
+    });
   }
 
   // Init
