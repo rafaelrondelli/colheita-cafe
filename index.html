@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colheita Café — Controle de Sacas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cafe: #3B1F0A;
+    --cafe-medio: #6B3A1F;
+    --cafe-claro: #A0522D;
+    --dourado: #C9902A;
+    --dourado-claro: #E8B84B;
+    --creme: #F5ECD7;
+    --creme-escuro: #E8D5B0;
+    --verde: #4A7C59;
+    --verde-claro: #6BAF7A;
+    --branco: #FDFAF4;
+    --sombra: rgba(59,31,10,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cafe);
+    background-image: 
+      radial-gradient(ellipse at 20% 80%, rgba(107,58,31,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(201,144,42,0.15) 0%, transparent 50%);
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--cafe);
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--creme);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23A0522D' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Ccircle cx='50' cy='50' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    padding: 28px 40px;
+    border-bottom: 3px solid var(--dourado);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px var(--sombra);
+  }
+
+  .logo-icon {
+    width: 52px; height: 52px;
+    background: var(--cafe);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(59,31,10,0.3);
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--cafe);
+    line-height: 1;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: var(--cafe-claro);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(245,236,215,0.08);
+    border: 1px solid rgba(201,144,42,0.3);
+    border-radius: 14px;
+    padding: 5px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 13px 20px;
+    border: none;
+    background: transparent;
+    color: var(--creme-escuro);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .tab.active {
+    background: var(--creme);
+    color: var(--cafe);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+
+  .tab:hover:not(.active) {
+    background: rgba(245,236,215,0.12);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--creme);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23A0522D' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    border: 1px solid var(--creme-escuro);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cafe);
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--dourado-claro);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cafe-medio);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input, select {
+    padding: 12px 16px;
+    border: 2px solid var(--creme-escuro);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--cafe);
+    background: var(--branco);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--dourado);
+    box-shadow: 0 0 0 3px rgba(201,144,42,0.15);
+  }
+
+  input::placeholder { color: #C4A882; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 13px 28px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--cafe);
+    color: var(--creme);
+    box-shadow: 0 4px 16px rgba(59,31,10,0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--cafe-medio);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,31,10,0.4);
+  }
+
+  .btn-gold {
+    background: var(--dourado);
+    color: var(--cafe);
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(201,144,42,0.3);
+  }
+
+  .btn-gold:hover {
+    background: var(--dourado-claro);
+    transform: translateY(-1px);
+  }
+
+  .btn-green {
+    background: var(--verde);
+    color: white;
+  }
+
+  .btn-green:hover { background: var(--verde-claro); transform: translateY(-1px); }
+
+  .btn-sm {
+    padding: 7px 14px;
+    font-size: 13px;
+    border-radius: 7px;
+  }
+
+  .btn-danger {
+    background: #C0392B;
+    color: white;
+  }
+
+  .btn-danger:hover { background: #A93226; }
+
+  .form-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* REGISTRO DIÁRIO */
+  .select-funcionario {
+    display: grid;
+    grid-template-columns: 1fr 180px 180px;
+    gap: 14px;
+    align-items: end;
+  }
+
+  /* TABELA */
+  .table-wrap { overflow-x: auto; margin-top: 8px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead tr {
+    background: var(--cafe);
+    color: var(--creme);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  th:first-child { border-radius: 10px 0 0 0; }
+  th:last-child { border-radius: 0 10px 0 0; }
+
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--creme-escuro);
+    color: var(--cafe);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover { background: rgba(201,144,42,0.06); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .badge-cafe { background: var(--cafe); color: var(--creme); }
+  .badge-green { background: var(--verde); color: white; }
+
+  /* SUMÁRIO */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--cafe);
+    color: var(--creme);
+    padding: 20px 22px;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 70px; height: 70px;
+    background: rgba(201,144,42,0.15);
+    border-radius: 50%;
+  }
+
+  .stat-card .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--dourado-claro);
+    line-height: 1;
+  }
+
+  .stat-card .lbl {
+    font-size: 11px;
+    color: var(--creme-escuro);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--cafe-claro);
+  }
+
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--cafe);
+    color: var(--creme);
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    border-left: 4px solid var(--dourado);
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* PRINT */
+  @media print {
+    body { background: white; }
+    .header, .tabs, .no-print { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+    .comprovante-area { display: block !important; }
+    .stat-card { background: var(--cafe) !important; -webkit-print-color-adjust: exact; }
+    .btn { display: none !important; }
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Comprovante print */
+  .comprovante-print {
+    border: 2px dashed var(--cafe-claro);
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 20px;
+    background: var(--branco);
+  }
+
+  .cp-header {
+    text-align: center;
+    border-bottom: 2px solid var(--dourado);
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .cp-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--cafe);
+  }
+
+  .cp-header p {
+    font-size: 12px;
+    color: var(--cafe-claro);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .cp-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+
+  .cp-info-item { display: flex; flex-direction: column; gap: 2px; }
+  .cp-info-item span:first-child { font-size: 11px; color: var(--cafe-claro); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .cp-info-item span:last-child { font-weight: 500; color: var(--cafe); }
+
+  .cp-total {
+    background: var(--cafe);
+    color: var(--creme);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  .cp-total .t-lbl { font-size: 13px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; color: var(--creme-escuro); }
+  .cp-total .t-val { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--dourado-claro); }
+
+  .actions-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .select-funcionario { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .cp-info { grid-template-columns: 1fr; }
+    .header { padding: 18px 20px; }
+    .card { padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-icon">☕</div>
+  <div>
+    <h1>Café & Colheita</h1>
+    <p>Sistema de Controle de Sacas</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showPage('funcionarios')">👷 Funcionários</button>
+    <button class="tab" onclick="showPage('registro')">📦 Registro de Sacas</button>
+    <button class="tab" onclick="showPage('relatorio')">📊 Relatório & Comprovantes</button>
+  </div>
+
+  <!-- PAGE 1: FUNCIONÁRIOS -->
+  <div id="page-funcionarios" class="page active">
+    <div class="card">
+      <div class="section-title">☕ Cadastro de Funcionário</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nome Completo</label>
+          <input type="text" id="f-nome" placeholder="Ex: João da Silva Oliveira">
+        </div>
+        <div class="form-group">
+          <label>Número do Funcionário</label>
+          <input type="text" id="f-numero" placeholder="Ex: 001">
+        </div>
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="cadastrarFuncionario()">➕ Cadastrar Funcionário</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="section-title">👷 Funcionários Cadastrados</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nº</th>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Total Sacas</th>
+              <th class="no-print">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-funcionarios">
+            <tr><td colspan="5"><div class="empty"><div class="icon">👷</div><p>Nenhum funcionário cadastrado ainda.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: REGISTRO -->
+  <div id="page-registro" class="page">
+    <div class="card">
+      <div class="section-title">📦 Registrar Sacas Colhidas</div>
+      <div class="select-funcionario">
+        <div class="form-group">
+          <label>Funcionário</label>
+          <select id="r-funcionario">
+            <option value="">— Selecione o funcionário —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="r-data">
+        </div>
+        <div class="form-group">
+          <label>Sacas Colhidas</label>
+          <input type="number" id="r-sacas" placeholder="0" min="0" step="0.5">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-gold" onclick="registrarSacas()">✅ Registrar</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="section-title">📋 Registros do Período</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Nº</th>
+              <th>Funcionário</th>
+              <th>Sacas</th>
+              <th class="no-print">Excluir</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-registros">
+            <tr><td colspan="5"><div class="empty"><div class="icon">📦</div><p>Nenhum registro feito ainda.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: RELATÓRIO -->
+  <div id="page-relatorio" class="page">
+    <div class="card">
+      <div class="section-title">📊 Resumo do Período</div>
+      <div class="summary-grid" id="summary-grid">
+        <div class="stat-card">
+          <div class="val" id="s-funcionarios">0</div>
+          <div class="lbl">Funcionários</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" id="s-registros">0</div>
+          <div class="lbl">Registros</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" id="s-total">0</div>
+          <div class="lbl">Total de Sacas</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:8px">🖨️ Comprovantes por Funcionário</div>
+      <div style="margin-bottom:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <select id="sel-funcionario-cp" style="min-width:220px; padding:10px 14px;">
+          <option value="">— Selecione o funcionário —</option>
+        </select>
+        <button class="btn btn-green" onclick="gerarComprovante()">🖨️ Gerar Comprovante</button>
+        <button class="btn btn-gold" onclick="imprimirTodos()">📄 Imprimir Todos</button>
+      </div>
+
+      <div id="comprovante-container"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✅ Operação realizada com sucesso!</div>
+
+<script>
+  let funcionarios = JSON.parse(localStorage.getItem('cafe_funcionarios') || '[]');
+  let registros = JSON.parse(localStorage.getItem('cafe_registros') || '[]');
+
+  // Formatar CPF
+  document.getElementById('f-cpf').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length <= 11) {
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+      v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+    }
+    e.target.value = v;
+  });
+
+  function salvar() {
+    localStorage.setItem('cafe_funcionarios', JSON.stringify(funcionarios));
+    localStorage.setItem('cafe_registros', JSON.stringify(registros));
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    event.target.closest('.tab').classList.add('active');
+    if (id === 'relatorio' || id === 'registro') atualizarSelects();
+    if (id === 'relatorio') atualizarRelatorio();
+  }
+
+  function cadastrarFuncionario() {
+    const nome = document.getElementById('f-nome').value.trim();
+    const numero = document.getElementById('f-numero').value.trim();
+    const cpf = document.getElementById('f-cpf').value.trim();
+
+    if (!nome || !numero || !cpf) { toast('⚠️ Preencha todos os campos!'); return; }
+    if (funcionarios.find(f => f.numero === numero)) { toast('⚠️ Número já cadastrado!'); return; }
+
+    funcionarios.push({ id: Date.now(), nome, numero, cpf });
+    salvar();
+    renderFuncionarios();
+    atualizarSelects();
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-numero').value = '';
+    document.getElementById('f-cpf').value = '';
+    toast('✅ Funcionário cadastrado com sucesso!');
+  }
+
+  function renderFuncionarios() {
+    const tbody = document.getElementById('tabela-funcionarios');
+    if (!funcionarios.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="icon">👷</div><p>Nenhum funcionário cadastrado ainda.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = funcionarios.map(f => {
+      const total = registros.filter(r => r.fid === f.id).reduce((s, r) => s + r.sacas, 0);
+      return `<tr>
+        <td><span class="badge badge-cafe">${f.numero}</span></td>
+        <td><strong>${f.nome}</strong></td>
+        <td style="font-family:'DM Mono',monospace;font-size:13px">${f.cpf}</td>
+        <td><span class="badge badge-green">${total} sacas</span></td>
+        <td class="no-print">
+          <button class="btn btn-danger btn-sm" onclick="excluirFuncionario(${f.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function excluirFuncionario(id) {
+    if (!confirm('Excluir funcionário e todos os registros?')) return;
+    funcionarios = funcionarios.filter(f => f.id !== id);
+    registros = registros.filter(r => r.fid !== id);
+    salvar();
+    renderFuncionarios();
+    renderRegistros();
+    toast('🗑️ Funcionário excluído.');
+  }
+
+  function atualizarSelects() {
+    const opts = '<option value="">— Selecione o funcionário —</option>' +
+      funcionarios.map(f => `<option value="${f.id}">${f.numero} — ${f.nome}</option>`).join('');
+    document.getElementById('r-funcionario').innerHTML = opts;
+    document.getElementById('sel-funcionario-cp').innerHTML = opts;
+  }
+
+  function registrarSacas() {
+    const fid = parseInt(document.getElementById('r-funcionario').value);
+    const data = document.getElementById('r-data').value;
+    const sacas = parseFloat(document.getElementById('r-sacas').value);
+
+    if (!fid || !data || isNaN(sacas) || sacas <= 0) { toast('⚠️ Preencha todos os campos corretamente!'); return; }
+
+    registros.push({ id: Date.now(), fid, data, sacas });
+    salvar();
+    renderRegistros();
+    renderFuncionarios();
+    document.getElementById('r-sacas').value = '';
+    toast('✅ Sacas registradas!');
+  }
+
+  function renderRegistros() {
+    const tbody = document.getElementById('tabela-registros');
+    if (!registros.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="icon">📦</div><p>Nenhum registro feito ainda.</p></div></td></tr>';
+      return;
+    }
+    const sorted = [...registros].sort((a, b) => new Date(b.data) - new Date(a.data));
+    tbody.innerHTML = sorted.map(r => {
+      const f = funcionarios.find(f => f.id === r.fid);
+      return `<tr>
+        <td style="font-family:'DM Mono',monospace">${formatarData(r.data)}</td>
+        <td><span class="badge badge-cafe">${f ? f.numero : '?'}</span></td>
+        <td>${f ? f.nome : 'Removido'}</td>
+        <td><strong>${r.sacas}</strong> sacas</td>
+        <td class="no-print">
+          <button class="btn btn-danger btn-sm" onclick="excluirRegistro(${r.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function excluirRegistro(id) {
+    if (!confirm('Excluir este registro?')) return;
+    registros = registros.filter(r => r.id !== id);
+    salvar();
+    renderRegistros();
+    renderFuncionarios();
+    toast('🗑️ Registro excluído.');
+  }
+
+  function formatarData(d) {
+    if (!d) return '';
+    const [y, m, dd] = d.split('-');
+    return `${dd}/${m}/${y}`;
+  }
+
+  function atualizarRelatorio() {
+    document.getElementById('s-funcionarios').textContent = funcionarios.length;
+    document.getElementById('s-registros').textContent = registros.length;
+    const total = registros.reduce((s, r) => s + r.sacas, 0);
+    document.getElementById('s-total').textContent = total % 1 === 0 ? total : total.toFixed(1);
+  }
+
+  function gerarComprovante() {
+    const fid = parseInt(document.getElementById('sel-funcionario-cp').value);
+    if (!fid) { toast('⚠️ Selecione um funcionário!'); return; }
+    const f = funcionarios.find(f => f.id === fid);
+    const regs = registros.filter(r => r.fid === fid).sort((a, b) => new Date(a.data) - new Date(b.data));
+    const total = regs.reduce((s, r) => s + r.sacas, 0);
+
+    const container = document.getElementById('comprovante-container');
+    container.innerHTML = buildComprovante(f, regs, total);
+  }
+
+  function buildComprovante(f, regs, total, paraImpressao = false) {
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const linhas = regs.map(r => `
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8D5B0;font-family:'DM Mono',monospace;font-size:13px">${formatarData(r.data)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8D5B0;text-align:right;font-weight:500">${r.sacas} sacas</td>
+      </tr>`).join('');
+
+    return `<div class="comprovante-print" ${paraImpressao ? 'style="page-break-after:always"' : ''}>
+      <div class="cp-header">
+        <div style="font-size:32px;margin-bottom:6px">☕</div>
+        <h2>Comprovante de Colheita</h2>
+        <p>Emitido em ${hoje}</p>
+      </div>
+      <div class="cp-info">
+        <div class="cp-info-item"><span>Funcionário</span><span>${f.nome}</span></div>
+        <div class="cp-info-item"><span>Número</span><span>${f.numero}</span></div>
+        <div class="cp-info-item"><span>CPF</span><span>${f.cpf}</span></div>
+        <div class="cp-info-item"><span>Total de Registros</span><span>${regs.length} dias</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--cafe);color:var(--creme)">
+          <th style="padding:10px;text-align:left;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;border-radius:8px 0 0 0">DATA</th>
+          <th style="padding:10px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;border-radius:0 8px 0 0">SACAS</th>
+        </tr></thead>
+        <tbody>${linhas || '<tr><td colspan="2" style="text-align:center;padding:20px;color:#A0522D">Nenhum registro encontrado.</td></tr>'}</tbody>
+      </table>
+      <div class="cp-total">
+        <div>
+          <div class="t-lbl">Total de Sacas Colhidas</div>
+          <div style="font-size:11px;color:var(--creme-escuro);font-family:'DM Mono',monospace;margin-top:2px">No período registrado</div>
+        </div>
+        <div class="t-val">${total % 1 === 0 ? total : total.toFixed(1)}</div>
+      </div>
+      ${!paraImpressao ? `<div class="actions-row no-print">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir este Comprovante</button>
+      </div>` : ''}
+    </div>`;
+  }
+
+  function imprimirTodos() {
+    if (!funcionarios.length) { toast('⚠️ Nenhum funcionário cadastrado!'); return; }
+    const container = document.getElementById('comprovante-container');
+    container.innerHTML = funcionarios.map(f => {
+      const regs = registros.filter(r => r.fid === f.id).sort((a, b) => new Date(a.data) - new Date(b.data));
+      const total = regs.reduce((s, r) => s + r.sacas, 0);
+      return buildComprovante(f, regs, total, true);
+    }).join('');
+    setTimeout(() => window.print(), 300);
+  }
+
+  // Init
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('r-data').value = hoje;
+  renderFuncionarios();
+  renderRegistros();
+  atualizarSelects();
+  atualizarRelatorio();
+</script>
+</body>
+</html>
